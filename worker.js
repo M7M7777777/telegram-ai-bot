@@ -1,5 +1,114 @@
+import { yaro } from "./yaro.js";
+const ADMIN_ID = "1881579954";
+const ADMIN_USERNAME = "@M7M7777777";
+
 export default {
   async fetch(request, env) {
-    return new Response("ربات آماده است 😎");
-  }
-};
+      try {
+            const update = await request.json();
+
+                  // تشخیص نوع پیام
+                        const msg = update.message || update.business_message;
+
+                              if (!msg || !msg.text) {
+                                      return new Response("OK");
+                                            }
+
+                                                  const isBusiness = !!update.business_message;
+
+                                                        const chatId = String(msg.chat.id);
+                                                              const fromId = String(msg.from.id);
+                                                                    const text = msg.text.trim();
+                                                                    const yaroAnswer = await yaro(
+                                                                          text,
+                                                                            msg.from.id,
+                                                                               env
+                                                                              );
+
+                                                                              if (yaroAnswer) {
+
+                                                                                await sendMessage(
+                                                                                    env,
+                                                                                        chatId,
+                                                                                            yaroAnswer
+                                                                                              );
+
+                                                                                                return new Response("OK");
+                                                                                                }
+
+                                                                          const businessId = msg.business_connection_id || null;
+
+
+                                                                                // =========================
+                                                                                      // مدیریت از پیوی خود Bot
+                                                                                            // =========================
+
+                                                                                                  if (!isBusiness) {
+
+                                                                                                          if (text === "/admin") {
+
+                                                                                                                    if (fromId !== ADMIN_ID) {
+
+                                                                                                                                await sendMessage(
+                                                                                                                                              env,
+                                                                                                                                                            chatId,
+                                                                                                                                                                          `😂 نزدیک بود رفیق، ولی این تنظیمات دست هر کسی نیست.
+                                                                                                                                                                          فقط ${ADMIN_USERNAME} می‌تونه تغییرش بده 😎`
+                                                                                                                                                                                      );
+
+                                                                                                                                                                                                  return new Response("OK");
+                                                                                                                                                                                                            }
+
+
+                                                                                                                                                                                                                      let settings =
+                                                                                                                                                                                                                                  await env.BOT_SETTINGS.get("settings");
+
+
+                                                                                                                                                                                                                                            if (!settings) {
+
+                                                                                                                                                                                                                                                        settings = {
+                                                                                                                                                                                                                                                                      model: "groq",
+                                                                                                                                                                                                                                                                                    personality: "friendly",
+                                                                                                                                                                                                                                                                                                  memory: true
+                                                                                                                                                                                                                                                                                                              };
+
+                                                                                                                                                                                                                                                                                                                          await env.BOT_SETTINGS.put(
+                                                                                                                                                                                                                                                                                                                                        "settings",
+                                                                                                                                                                                                                                                                                                                                                      JSON.stringify(settings)
+                                                                                                                                                                                                                                                                                                                                                                  );
+                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                      else {
+                                                                                                                                                                                                                                                                                                                                                                                                  settings = JSON.parse(settings);
+                                                                                                                                                                                                                                                                                                                                                                                                            }
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                      await sendMessage(
+                                                                                                                                                                                                                                                                                                                                                                                                                                  env,
+                                                                                                                                                                                                                                                                                                                                                                                                                                              chatId,
+                                                                                                                                                                                                                                                                                                                                                                                                                                              `
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ⚙️ پنل مدیریت
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                              🤖 مدل:
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ${settings.model}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                              🧠 حافظه:
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ${settings.memory ? "روشن ✅" : "خاموش ❌"}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                              🎭 شخصیت:
+                                                                                                                                                                                                                                                                                                                                                                                                                                              ${settings.personality}
+                                                                                                                                                                                                                                                                                                                                                                                                                                              `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        );
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                  return new Response("OK");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  // پیام‌های عادی پیوی Bot
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          await sendMessage(
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    env,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              chatId,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        "😎 این بخش برای مدیریت رباته. از /admin استفاده کن."
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                );
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        return new Response("OK");
+                                                               
