@@ -70,7 +70,7 @@ export default {
       console.error("Error processing update:", error);
       return new Response("OK");
     }
-  ,
+  },
 };
 
 // تابع کمکی ارسال پیام به تلگرام
