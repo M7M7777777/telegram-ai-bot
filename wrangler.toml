@@ -1,1 +1,7 @@
-کص
+name = "telegram-ai-bot"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "BOT_SETTINGS"
+id = "b6dafbf04483453c8bc9aa1d5ceb78b9"
